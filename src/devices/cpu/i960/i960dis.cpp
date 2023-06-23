@@ -13,13 +13,14 @@
   Based on documents:
   270567-001  80960KB Programmer's Reference Manual (March 1988)
   270710-003  i960 CA/CF Microprocessor User's Manual (March 1994)
+  270929-003  i960 SA/SB Microprocessor Reference Manual (March 1991)
   271081-001  80960MC Programmer's Reference Manual (July 1988)
   272483-001  i960 Jx Microprocessor User's Manual (September 1994)
   272484-002  i960 Hx Microprocessor Developer's Manual (September 1998)
   272736-002  i960 Rx I/O Microprocessor Developer's Manual (April 1997)
   273353-001  Intel 80303 I/O Processor Developer's Manual (May 2000)
 */
-
+/// @todo add the opcodes from the BiiN manual as well
 const i960_disassembler::mnemonic_t i960_disassembler::mnemonic[256] = {
 	{ "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, // 00
 	{ "b", 1, 1 }, { "call", 1, 1 }, { "ret", 1, 0 }, { "bal", 1, 1 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 }, { "?", 0, 0 },

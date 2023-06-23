@@ -117,6 +117,8 @@ void i960_cpu_device::send_iac(uint32_t adr)
 	switch(iac[0]>>24) {
 	case 0x40:  // generate irq
 		logerror("I960: %x: IAC %08x %08x %08x %08x (generate IRQ)\n", m_PIP, iac[0], iac[1], iac[2], iac[3]);
+        /// @todo post the interrupt vector to the table instead of generating
+        /// an error
 		break;
 	case 0x41:  // test for pending interrupts
 		logerror("I960: %x: IAC %08x %08x %08x %08x (test for pending interrupts)\n", m_PIP, iac[0], iac[1], iac[2], iac[3]);
@@ -166,7 +168,8 @@ uint32_t i960_cpu_device::get_ea(uint32_t opcode)
 		int scale = (opcode >> 7) & 0x7;
 		int mode  = (opcode >> 10) & 0xf;
 		uint32_t ret;
-
+        /// @todo make sure that we are doing the right thing by using Integers
+        /// instead of Ordinals
 		switch(mode) {
 		case 0x4:
 			return m_r[abase];
@@ -2236,6 +2239,7 @@ void i960_cpu_device::execute_run()
 
 void i960_cpu_device::execute_set_input(int irqline, int state)
 {
+    /// @todo handle this via segment table lookup instead of magic hardcoded offsets
 	int int_tab =  m_program.read_dword(m_PRCB+20);    // interrupt table
 	int cpu_pri = (m_PC>>16)&0x1f;
 	int vector =0;
