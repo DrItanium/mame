@@ -692,13 +692,39 @@ void i960_cpu_device::execute_burst_stall_op(uint32_t opcode)
 	// now that we are done we might as well check if there's a pending irq too
 	check_irqs();
 }
+namespace {
+// the instruction encoding of the i960 seems to use a division scheme of the
+// upper most three bits
+// 0b000.... - CTRL
+// 0b001.... - COBR
+// 0b01..... - REG
+// 0b1...... - MEM
+constexpr bool isCTRLInstruction(uint32_t instruction) noexcept {
+    return instruction < 0x20000000;
+}
+constexpr bool isCOBRInstruction(uint32_t instruction) noexcept {
+    return instruction >= 0x20000000 && instruction < 0x40000000;
+}
+constexpr bool isREGInstruction(uint32_t instruction) noexcept {
+    return instruction >= 0x40000000 && instruction < 0x80000000;
+}
+constexpr bool isMEMInstruction(uint32_t instruction) noexcept {
+    return instruction >= 0x8000'0000;
+}
+constexpr uint8_t getPrimaryOpcode(uint32_t instruction) noexcept {
+    return static_cast<uint8_t>(instruction >> 24);
+}
+constexpr uint8_t getSecondaryOpcode(uint32_t instruction) noexcept {
+    return static_cast<uint8_t>(instruction >> 7) & 0x0f;
+}
+}
 
 void i960_cpu_device::execute_op(uint32_t opcode)
 {
 	uint32_t t1, t2;
 	double t1f, t2f;
-
-	switch(opcode >> 24) {
+    uint8_t primaryOpcode = getPrimaryOpcode(opcode);
+	switch(primaryOpcode) {
 		case 0x08: // b
 			m_icount--;
 			m_IP += get_disp(opcode);
@@ -964,7 +990,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 			break;
 
 		case 0x58:
-			switch((opcode >> 7) & 0xf) {
+			switch(getSecondaryOpcode(opcode)) {
 			case 0x0: // notbit
 				m_icount -= 2;
 				t1 = get_1_ri(opcode);
@@ -1038,7 +1064,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 				m_icount--;
 				t1 = get_1_ri(opcode);
 				t2 = get_2_ri(opcode);
-				set_ri(opcode, t2 | ~t1);
+				set_ri(opcode, t2 | (~t1));
 				break;
 
 			case 0xc: // clrbit
