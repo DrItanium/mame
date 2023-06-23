@@ -145,6 +145,7 @@ void i960_cpu_device::send_iac(uint32_t adr)
 		m_SAT  = iac[1];
 		m_PRCB = iac[2];
 		m_IP   = iac[3];
+        /// @todo this is incomplete and we need to be in an interrupt state as well
 		break;
 	default:
 		fatalerror("I960: %x: IAC %08x %08x %08x %08x\n", m_PIP, iac[0], iac[1], iac[2], iac[3]);
@@ -427,6 +428,7 @@ void i960_cpu_device::bxx(uint32_t opcode, int mask)
 void i960_cpu_device::fxx(uint32_t opcode, int mask)
 {
 	if(m_AC & mask) {
+        /// @todo implement fault handling support
 		fatalerror("Taking the fault on a FAULT insn not yet supported\n");
 	}
 }
@@ -492,7 +494,7 @@ void i960_cpu_device::check_irqs()
 	int lvl, irq, take = -1;
 	int vword;
 	static const uint32_t lvlmask[4] = { 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000 };
-
+/// @todo overhaul the interrupt mechanism
 	pending_pri = m_program.read_dword(int_tab);       // read pending priorities
 
 	if ((m_immediate_irq) && ((cpu_pri < m_immediate_pri) || (m_immediate_pri == 31)))
@@ -629,7 +631,7 @@ void i960_cpu_device::do_ret()
 	case 0:
 		do_ret_0();
 		break;
-
+    /// @todo implement the rest of the return modes!
 	case 7:
 		x = m_program.read_dword(m_r[I960_FP]-16);
 		y = m_program.read_dword(m_r[I960_FP]-12);
@@ -651,6 +653,7 @@ void i960_cpu_device::do_ret()
 // i.e. Model 2 FIFO reads with ldl, ldt, ldq
 void i960_cpu_device::burst_stall_save(uint32_t t1, uint32_t t2, int index, int size, bool iswriteop)
 {
+    /// @todo why do we need to stall here? it's just a multi word load
 	m_stall_state.t1 = t1;
 	m_stall_state.t2 = t2;
 	m_stall_state.index = index;
@@ -852,7 +855,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 			} else
 				m_AC &= ~7;
 			break;
-
+        /// @todo pull the compare mask out of the opcode itself :)
 		case 0x31: // cmp0bg
 			m_icount -= 4;
 			t1 = get_1_ci(opcode);
@@ -1158,6 +1161,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 				t1 = get_1_ri(opcode);
 				t2 = get_2_ri(opcode);
 				set_ri(opcode, (t2 & 0x80000000) | (t1 >= 32 ? 0 : (t2<<t1) & 0x7fffffff)); // sign is preserved
+                /// @todo implement overflow and fault handling detection
 				break;
 
 			default:
@@ -2373,6 +2377,7 @@ void i960_cpu_device::device_reset()
 	m_SAT        = m_program.read_dword(0);
 	m_PRCB       = m_program.read_dword(4);
 	m_IP         = m_program.read_dword(12);
+    /// @todo implement the checksum support to be complete
 	m_PC         = 0x001f2002;
 	m_AC         = 0;
 	m_ICR       = 0xff000000;
