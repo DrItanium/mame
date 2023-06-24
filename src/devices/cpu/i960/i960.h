@@ -122,7 +122,11 @@ private:
 	int32_t m_rcache_pos;
 #endif
 
-	double m_fp[4];
+    union ExtendedReal {
+        double floatValue;
+        uint32_t ords[3];
+    };
+	ExtendedReal m_fp[4];
 
 	uint32_t m_SAT;
 	uint32_t m_PRCB;
