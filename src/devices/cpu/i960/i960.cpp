@@ -621,13 +621,13 @@ void i960_cpu_device::do_ret_0()
 
 	m_r[I960_FP] = m_r[I960_PFP] & ~0x3f;
 
-	m_rcache_pos--;
+	//m_rcache_pos--;
 
 	// normal situation: if we're still above rcache size, we're not in cache.
 	// abnormal situation (after the app does a FLUSHREG): rcache_pos will be 0
 	// coming in, but we must still treat it as a not-in-cache situation.
-	if ((m_rcache_pos >= I960_RCACHE_SIZE) || (m_rcache_pos < 0))
-	{
+	//if ((m_rcache_pos >= I960_RCACHE_SIZE) || (m_rcache_pos < 0))
+	//{
 		int i;
 		for(i=0; i<0x10; i++)
 			m_r[i] = m_program.read_dword(m_r[I960_FP]+4*i);
@@ -636,11 +636,11 @@ void i960_cpu_device::do_ret_0()
 		{
 			m_rcache_pos = 0;
 		}
-	}
-	else
-	{
-		memcpy(m_r, m_rcache[m_rcache_pos], 0x10*sizeof(uint32_t));
-	}
+	//}
+	//else
+	//{
+	//	memcpy(m_r, m_rcache[m_rcache_pos], 0x10*sizeof(uint32_t));
+	//}
 
 //  osd_printf_debug("RET (type %d): FP %x, %x => %x, rcache_pos %d\n", type, m_r[I960_FP], m_IP, m_r[I960_RIP], m_rcache_pos);
 	m_IP = m_r[I960_RIP];
