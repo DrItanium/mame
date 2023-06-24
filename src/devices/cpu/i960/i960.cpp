@@ -556,6 +556,19 @@ void i960_cpu_device::check_irqs()
 
 void i960_cpu_device::do_call(uint32_t adr, int type, uint32_t stack)
 {
+    /// @todo fix the register cache concept as it is backwards, it should be
+    /// the most recent four entries.
+    ///
+    /// We need to use a modulo ring design where incrementing the counter is call and
+    /// decrementing the counter is return. When you call you check the next
+    /// register set (the index is a modulo ring) and see if it is free or not. 
+    /// If it is free then use it, otherwise save that set to memory and take it for the new call frame.
+    ///
+    /// On a return, we check the _previous_ frame (remember the number is a
+    /// modulo ring). If it matches the current pfp then we just use it.
+    /// Otherwise, we will be saving the contents of the previous frame to ram
+    /// and then restore the frame using pfp. We then mark the current register
+    /// frame as invalid and free.
 	int i;
 	uint32_t FP;
 
@@ -585,6 +598,13 @@ void i960_cpu_device::do_call(uint32_t adr, int type, uint32_t stack)
 	m_r[I960_PFP] = m_r[I960_FP] & ~7;
 	m_r[I960_PFP] |= type;
 
+    /// @todo wat? the interrupt stack mechanism contains a callback to go from
+    /// normal context to interrupt context. The return type code inside of the
+    /// PFP describes where to go after this point.
+    ///
+    /// Calling functions inside of interrupt context, while goofy, is totally
+    /// supported. It also becomes a necessary when supporting handling
+    /// interrupts inside of interrupt context.
 	if(type == 7) { // interrupts need special handling
 		// set the stack to the passed-in value to properly handle nested interrupts
 		// (can't set it externally or the original program's SP will be lost)
