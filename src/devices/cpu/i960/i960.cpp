@@ -580,19 +580,19 @@ void i960_cpu_device::do_call(uint32_t adr, int type, uint32_t stack)
 //  osd_printf_debug("CALL (type %d): FP %x, %x => %x, stack %x, rcache_pos %d\n", type, m_r[I960_FP], m_r[I960_RIP], adr, stack, m_rcache_pos);
 
 	// are we out of cache entries?
-	if (m_rcache_pos >= I960_RCACHE_SIZE) {
+	//if (m_rcache_pos >= I960_RCACHE_SIZE) {
 		// flush the current register set to the current frame
 		FP = m_r[I960_FP] & ~0x3f;
 		for (i = 0; i < 16; i++) {
 			m_program.write_dword(FP + (i*4), m_r[i]);
 		}
-	}
-	else    // a cache entry is available, use it
-	{
-		memcpy(&m_rcache[m_rcache_pos][0], m_r, 0x10 * sizeof(uint32_t));
-		m_rcache_frame_addr[m_rcache_pos] = m_r[I960_FP] & ~0x3f;
-	}
-	m_rcache_pos++;
+	//}
+	//else    // a cache entry is available, use it
+	//{
+	//	memcpy(&m_rcache[m_rcache_pos][0], m_r, 0x10 * sizeof(uint32_t));
+	//	m_rcache_frame_addr[m_rcache_pos] = m_r[I960_FP] & ~0x3f;
+	//}
+	//m_rcache_pos++;
 
 	m_IP = adr;
 	m_r[I960_PFP] = m_r[I960_FP] & ~7;
