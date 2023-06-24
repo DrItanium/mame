@@ -268,7 +268,7 @@ double i960_cpu_device::get_1_rif(uint32_t opcode)
 	else {
 		int idx = opcode & 0x1f;
 		if(idx < 4)
-			return m_fp[idx];
+			return m_fp[idx].floatValue;
 		if(idx == 0x16)
 			return 1.0;
 		return 0.0;
@@ -282,7 +282,7 @@ double i960_cpu_device::get_2_rif(uint32_t opcode)
 	else {
 		int idx = (opcode>>14) & 0x1f;
 		if(idx < 4)
-			return m_fp[idx];
+			return m_fp[idx].floatValue;
 		if(idx == 0x16)
 			return 1.0;
 		return 0.0;
@@ -294,7 +294,7 @@ void i960_cpu_device::set_rif(uint32_t opcode, double val)
 	if(!(opcode & 0x00002000))
 		m_r[(opcode>>19) & 0x1f] = f2u(val);
 	else if(!(opcode & 0x00e00000))
-		m_fp[(opcode>>19) & 3] = val;
+		m_fp[(opcode>>19) & 3].floatValue = val;
 	else
 		fatalerror("I960: %x: set_rif on literal?\n", m_PIP);
 }
@@ -308,7 +308,7 @@ double i960_cpu_device::get_1_rifl(uint32_t opcode)
 	} else {
 		int idx = opcode & 0x1f;
 		if(idx < 4)
-			return m_fp[idx];
+			return m_fp[idx].floatValue;
 		if(idx == 0x16)
 			return 1.0;
 		return 0.0;
@@ -324,7 +324,7 @@ double i960_cpu_device::get_2_rifl(uint32_t opcode)
 	} else {
 		int idx = (opcode>>14) & 0x1f;
 		if(idx < 4)
-			return m_fp[idx];
+			return m_fp[idx].floatValue;
 		if(idx == 0x16)
 			return 1.0;
 		return 0.0;
@@ -338,7 +338,7 @@ void i960_cpu_device::set_rifl(uint32_t opcode, double val)
 		m_r[(opcode>>19) & 0x1e] = v;
 		m_r[((opcode>>19) & 0x1e)+1] = v>>32;
 	} else if(!(opcode & 0x00e00000))
-		m_fp[(opcode>>19) & 3] = val;
+		m_fp[(opcode>>19) & 3].floatValue= val;
 	else
 		fatalerror("I960: %x: set_rifl on literal?\n", m_PIP);
 }
