@@ -553,8 +553,7 @@ void i960_cpu_device::check_irqs()
 
 void i960_cpu_device::do_call(uint32_t adr, int type, uint32_t stack)
 {
-    /// @todo fix the register cache concept as it is backwards, it should be
-    /// the most recent four entries.
+    /// @todo Implement a proper register cache implementation
     ///
     /// We need to use a modulo ring design where incrementing the counter is call and
     /// decrementing the counter is return. When you call you check the next
@@ -611,9 +610,9 @@ void i960_cpu_device::do_ret_0()
 	m_r[I960_FP] = m_r[I960_PFP] & ~0x3f;
 
 
-    int i;
-    for(i=0; i<0x10; i++)
+    for(auto i=0; i<0x10; i++) {
         m_r[i] = m_program.read_dword(m_r[I960_FP]+4*i);
+    }
 
 //  osd_printf_debug("RET (type %d): FP %x, %x => %x, rcache_pos %d\n", type, m_r[I960_FP], m_IP, m_r[I960_RIP], m_rcache_pos);
 	m_IP = m_r[I960_RIP];
