@@ -114,11 +114,13 @@ private:
 	address_space_config m_program_config;
 
 	uint32_t m_r[0x20];
+#if 0
 	uint32_t m_rcache[I960_RCACHE_SIZE][0x10];
 	uint32_t m_rcache_frame_addr[I960_RCACHE_SIZE];
 	// rcache_pos = how deep in the stack we are.  0-(I960_RCACHE_SIZE-1) means in-cache.
 	// I960_RCACHE_SIZE or greater means out of cache, must save to memory.
 	int32_t m_rcache_pos;
+#endif
 
 	double m_fp[4];
 

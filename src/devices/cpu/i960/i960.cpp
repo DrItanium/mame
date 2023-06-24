@@ -16,16 +16,23 @@ DEFINE_DEVICE_TYPE(I960, i960_cpu_device, "i960kb", "Intel i960KB")
 
 i960_cpu_device::i960_cpu_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
 	: cpu_device(mconfig, I960, tag, owner, clock)
-	, m_stalled(false), m_program_config("program", ENDIANNESS_LITTLE, 32, 32, 0)
-	, m_rcache_pos(0), m_SAT(0), m_PRCB(0), m_PC(0), m_AC(0), m_IP(0), m_PIP(0), m_ICR(0), m_immediate_irq(0)
+	, m_stalled(false), m_program_config("program", ENDIANNESS_LITTLE, 32, 32, 0), 
+#if 0
+    m_rcache_pos(0), 
+#endif
+    m_SAT(0), m_PRCB(0), m_PC(0), m_AC(0), m_IP(0), m_PIP(0), m_ICR(0), m_immediate_irq(0)
 	, m_immediate_vector(0), m_immediate_pri(0), m_icount(0)
 {
 	std::fill(std::begin(m_r), std::end(m_r), 0);
+#if 0
 	std::fill(std::begin(m_rcache_frame_addr), std::end(m_rcache_frame_addr), 0);
+#endif
 	std::fill(std::begin(m_fp), std::end(m_fp), 0);
 
+#if 0
 	for (int i = 0; i <I960_RCACHE_SIZE; i++)
 		std::fill(std::begin(m_rcache[i]), std::end(m_rcache[i]), 0);
+#endif
 }
 
 
@@ -631,11 +638,12 @@ void i960_cpu_device::do_ret_0()
 		int i;
 		for(i=0; i<0x10; i++)
 			m_r[i] = m_program.read_dword(m_r[I960_FP]+4*i);
-
+#if 0
 		if (m_rcache_pos < 0)
 		{
 			m_rcache_pos = 0;
 		}
+#endif
 	//}
 	//else
 	//{
@@ -1563,6 +1571,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 				break;
 
 			case 0xd: // flushreg
+#if 0
 				if (m_rcache_pos > 4)
 				{
 					m_rcache_pos = 4;
@@ -1577,6 +1586,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 					}
 				}
 				m_rcache_pos = 0;
+#endif
 				break;
 
 			default:
@@ -2341,9 +2351,11 @@ void i960_cpu_device::device_start()
 	save_item(NAME(m_ICR));
 	save_item(NAME(m_r));
 	save_item(NAME(m_fp));
+#if 0
 	save_item(NAME(m_rcache));
 	save_item(NAME(m_rcache_frame_addr));
 	save_item(NAME(m_rcache_pos));
+#endif
 	save_item(NAME(m_immediate_irq));
 	save_item(NAME(m_immediate_vector));
 	save_item(NAME(m_immediate_pri));
@@ -2400,7 +2412,9 @@ void i960_cpu_device::device_start()
 
 	m_immediate_vector = 0;
 	m_immediate_pri = 0;
+#if 0
 	memset(m_rcache_frame_addr, 0, sizeof(m_rcache_frame_addr));
+#endif
 	memset(m_fp, 0, sizeof(m_fp));
 	m_PIP = 0;
 
@@ -2434,11 +2448,15 @@ void i960_cpu_device::device_reset()
 	m_immediate_irq = 0;
 
 	memset(m_r, 0, sizeof(m_r));
+#if 0
 	memset(m_rcache, 0, sizeof(m_rcache));
+#endif
 
 	m_r[I960_FP] = m_program.read_dword(m_PRCB+24);
 	m_r[I960_SP] = m_r[I960_FP] + 64;
+#if 0
 	m_rcache_pos = 0;
+#endif
 }
 
 std::unique_ptr<util::disasm_interface> i960_cpu_device::create_disassembler()
