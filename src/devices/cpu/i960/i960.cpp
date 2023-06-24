@@ -1535,8 +1535,7 @@ void i960_cpu_device::execute_op(uint32_t opcode)
 				break;
 
 			case 0xd: // flushreg
-                      /// @todo implement register cache support if it makes
-                      /// sense
+                      /// @todo implement if it makes sense
 				break;
 
 			default:
@@ -2380,9 +2379,28 @@ void i960_cpu_device::state_string_export(const device_state_entry &entry, std::
 
 void i960_cpu_device::device_reset()
 {
-	m_SAT        = m_program.read_dword(0);
-	m_PRCB       = m_program.read_dword(4);
-	m_IP         = m_program.read_dword(12);
+    // okay so let's do this right
+    uint32_t bootWords[8] = { 0 };
+    for (int i = 0, j = 0; i < 8; ++i, j+=4) {
+        bootWords[i] = m_program.read_dword(j);
+    }
+	m_SAT        = bootWords[0];
+	m_PRCB       = bootWords[1];
+	m_IP         = bootWords[3];
+
+    uint64_t checksum = 0;
+    for (auto a : bootWords) {
+        checksum += a;
+    }
+    checksum += 0xFFFF'FFFF;
+    // add together the first 8 32-bit words making sure that the carry bits
+    // are carried forward.
+    auto lower = static_cast<uint32_t>(checksum);
+    auto upper = static_cast<uint32_t>(checksum >> 32);
+    auto computedChecksum = lower + upper;
+    if (computedChecksum != 0) {
+		logerror("I960: checksum failure: Got: %08x\n", computedChecksum);
+    }
     /// @todo implement the checksum support to be complete
 	m_PC         = 0x001f2002;
 	m_AC         = 0;
@@ -2399,3 +2417,4 @@ std::unique_ptr<util::disasm_interface> i960_cpu_device::create_disassembler()
 {
 	return std::make_unique<i960_disassembler>();
 }
+
